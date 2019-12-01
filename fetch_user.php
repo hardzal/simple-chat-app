@@ -1,8 +1,7 @@
 <?php
 
 require_once './database.php';
-
-session_start();
+require_once './functions.php';
 
 $query = "SELECT * FROM login WHERE user_id != '" . $_SESSION['user_id'] . "'";
 

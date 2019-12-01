@@ -1,7 +1,6 @@
 <?php
 require_once './database.php';
 
-session_start();
 $message = '';
 
 if (isset($_SESSION['user_id'])) {

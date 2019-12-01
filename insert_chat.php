@@ -1,13 +1,12 @@
 <?php
 
 require_once './database.php';
-
-session_start();
+require_once './functions.php';
 
 $data = array(
     ':to_user_id'   => $_POST['to_user_id'],
     ':from_user_id' => $_SESSION['user_id'],
-    ':chat_message' => $_POST['chat_message'],
+    ':chat_message' => encrypt($sBox, $_SESSION['username'], $_POST['chat_message']),
     ':status'       => 1
 );
 
