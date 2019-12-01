@@ -13,6 +13,7 @@ $sBox = range(0, 255);
 // proses menukar 
 function swap(&$a, &$b): void
 {
+    // penukaran menggunakan alamat pointernya
     $temp = $a;
     $a = $b;
     $a = $temp;
@@ -23,10 +24,10 @@ function randomSBox($key, $sBox): void
 {
     $i = 0;
     $j = 0;
+    // menghitug ukuran panjang key
     $length = strlen($key);
     for ($i = 0; $i < 256; $i++) {
         // konversi karakter ke bilangan 0 - 255
-        // https://www.php.net/manual/en/function.ord.php
         $char = ord($key[$i % $length]);
 
         $j = ($j + $sBox[$i] + $char) % 256;
@@ -35,10 +36,12 @@ function randomSBox($key, $sBox): void
 }
 
 // Proses Pseudo Random Byte
-function pseudoRandomWithXor(string $data, array $sBox)
+function pseudoRandomWithXor(string $data, array $sBox): string
 {
+    // menghitung ukuran panjang data
     $n = strlen($data);
     $i = $j = 0;
+    // konversi string ke array
     $data = str_split($data, 1);
 
     for ($m = 0; $m < $n; $m++) {
@@ -47,6 +50,7 @@ function pseudoRandomWithXor(string $data, array $sBox)
 
         swap($i, $j);
 
+        // konversi strig ke 0-255
         $char = ord($data[$m]);
         $t = ($sBox[$i] + $sBox[$j]) % 256;
 
