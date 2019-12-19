@@ -30,7 +30,6 @@ foreach ($result as $row) {
     } else {
         $status = '<span class="btn btn-danger">Offline</span>';
     }
-
     $output .= '
         <tr>
             <td>' . $row['username'] .  ' ' . count_unseen_message($row['user_id'], $_SESSION['user_id'], $connect) . '</td>

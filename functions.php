@@ -24,7 +24,7 @@ function randomSBox($key, $sBox): void
 {
     $i = 0;
     $j = 0;
-    // menghitug ukuran panjang key
+    // menghitung ukuran panjang key
     $length = strlen($key);
     for ($i = 0; $i < 256; $i++) {
         // konversi karakter ke bilangan 0 - 255
@@ -48,13 +48,14 @@ function pseudoRandomWithXor(string $data, array $sBox): string
         $i = ($i + 1) % 256;
         $j = ($j + $sBox[$i]) % 256;
 
-        swap($i, $j);
+        swap($sBox[$i], $sBox[$j]);
 
         // konversi strig ke 0-255
         $char = ord($data[$m]);
         $t = ($sBox[$i] + $sBox[$j]) % 256;
 
-        $char = $t ^ $char;
+        // kemudian xor kan hasil pembangkitan kunci dengan karakter yang ingin dienckrip/dekrip
+        $char = $sBox[$t] ^ $char;
         // konversi angka 0-255 ke karakter
         $data[$m] = chr($char);
     }
@@ -121,7 +122,7 @@ function fetch_user_chat_history($from_user_id, $to_user_id, $connect)
 
     $output .= '</ul>';
 
-    $query = "UPDATE chat_message SET status = '0' WHERE from_user_id ='" . $from_user_id . "' AND to_user_id ='" . $to_user_id . "' AND status = '1'";
+    $query = "UPDATE chat_message SET status_message = '0' WHERE from_user_id ='" . $to_user_id . "' AND to_user_id ='" . $from_user_id . "' AND status_message = '1'";
 
     $statement = $connect->prepare($query);
     $statement->execute();
@@ -144,7 +145,7 @@ function get_user_name($user_id, $connect)
 
 function count_unseen_message($from_user_id, $to_user_id, $connect)
 {
-    $query = "SELECT * FROM chat_message WHERE from_user_id = '" . $from_user_id . "' AND to_user_id = '" . $to_user_id . "' AND status = '1'";
+    $query = "SELECT * FROM chat_message WHERE from_user_id = '" . $from_user_id . "' AND to_user_id = '" . $to_user_id . "' AND status_message = '1'";
 
     $statement = $connect->prepare($query);
     $statement->execute();
@@ -153,8 +154,7 @@ function count_unseen_message($from_user_id, $to_user_id, $connect)
     $output = '';
 
     if ($count > 0) {
-        $output = '<span class="label label-success">' . $count . '</span>';
-        echo "hell!";
+        $output .= '<span class="btn btn-success">' . $count . '</span>';
     }
 
     return $output;
