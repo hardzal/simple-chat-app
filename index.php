@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
 }
 ?>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -15,9 +15,18 @@ if (!isset($_SESSION['user_id'])) {
     <title>Chat Application with PHP ajax jQuery</title>
     <link rel="stylesheet" href="./vendor/jquery-ui/jquery-ui.min.css" type="text/css" />
     <link rel="stylesheet" href="./vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="./vendor/emojionarea/css/emojionearea.min.css" />
     <script src="./vendor/bootstrap.min.js" type="text/javascript"></script>
     <script src="./vendor/jquery-3.3.1.js" type="text/javascript"></script>
     <script src="./vendor/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="./vendor/emojionarea/js/emojionearea.min.js"></script>
+    <!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.js"></script> -->
+
 </head>
 
 <body>
@@ -43,7 +52,7 @@ if (!isset($_SESSION['user_id'])) {
                 update_last_activity();
                 fetch_user();
                 update_chat_history_data();
-            }, 3000);
+            }, 10000);
 
             function fetch_user() {
                 $.ajax({
@@ -71,7 +80,7 @@ if (!isset($_SESSION['user_id'])) {
                 modal_content += fetch_user_chat_history(to_user_id);
                 modal_content += '</div>';
                 modal_content += '<div class="form-group">';
-                modal_content += '<textarea name="chat_message_' + to_user_id + '" id="chat_message_' + to_user_id + '" class="form-control"></textarea>';
+                modal_content += '<textarea name="chat_message_' + to_user_id + '" id="chat_message_' + to_user_id + '" class="form-control chat_message"></textarea>';
                 modal_content += '</div><div class="form-group" align="right">';
                 modal_content += '<button type="button" name="send_chat" id="' + to_user_id + '" class="btn btn-info send_chat">Send</button></div></div>';
 
@@ -90,6 +99,11 @@ if (!isset($_SESSION['user_id'])) {
                 });
 
                 $('#user_dialog_' + to_user_id).dialog('open');
+
+                $('#chat_message_' + to_user_id).emojioneArea({
+                    pickerPosition: "top",
+                    toneStyle: "bullet"
+                });
             });
 
             $(document).on('click', '.send_chat', function() {
@@ -103,8 +117,12 @@ if (!isset($_SESSION['user_id'])) {
                         chat_message: chat_message
                     },
                     success: function(data) {
-                        $('#chat_message_' + to_user_id).val('');
+                        // console.log(chat_message);
+                        // $('#chat_message_' + to_user_id).val('');
+                        let element_chat = $('#chat_message_' + to_user_id).emojioneArea();
+                        element_chat[0].emojioneArea.setText('');
                         $('#chat_history_' + to_user_id).html(data);
+
                     }
                 });
             });
@@ -128,6 +146,40 @@ if (!isset($_SESSION['user_id'])) {
                     fetch_user_chat_history(to_user_id);
                 });
             }
+
+            $(document).on('click', '.ui-button-icon', function() {
+                $('.user_dialog').dialog('destroy').remove();
+            });
+
+            $(document).on('focus', '.chat_message', function() {
+                let is_type = 'yes';
+
+                $.ajax({
+                    url: "update_is_type_status.php",
+                    method: "POST",
+                    data: {
+                        is_type: is_type
+                    },
+                    success: function(data) {
+
+                    }
+                });
+            });
+
+            $(document).on('blur', '.chat_message', function() {
+                let is_type = 'no';
+
+                $.ajax({
+                    url: "update_is_type_status.php",
+                    method: "POST",
+                    data: {
+                        is_type: is_type,
+                    },
+                    success: function() {
+
+                    }
+                });
+            });
         });
     </script>
 </body>
