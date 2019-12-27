@@ -20,6 +20,15 @@ if (!isset($_SESSION['user_id'])) {
     <script src="./vendor/jquery-3.3.1.js" type="text/javascript"></script>
     <script src="./vendor/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="./vendor/emojionarea/js/emojionearea.min.js"></script>
+    <style type="text/css">
+        #group_chat_history {
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            margin-bottom: 24px;
+            padding: 16px;
+        }
+    </style>
 </head>
 
 <body>
@@ -29,13 +38,37 @@ if (!isset($_SESSION['user_id'])) {
         <h3 style="text-align: center;">Chat Application with PHP ajax jQuery</h3>
         <br />
 
+        <div class="row">
+            <div class="col-md-8 col-sm-6">
+                <h4>Online User</h4>
+            </div>
+            <div class="col-md-2 col-sm-3">
+                <input type="hidden" name="status_group_chat" id="is_active_group_chat_window" value="no" />
+                <button type="button" name="group_chat" id="group_chat" class="btn btn-primary btn-xs" style="cursor: pointer;">Group Chat</button>
+            </div>
+            <div class="col-md-2 col-sm-3">
+                <p style="text-align: right;">Hi - <?= $_SESSION['username']; ?> <br><a href='logout.php' class="badge badge-danger">Logout</a></p>
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <h4 style="text-align: center;">Online User</h4>
-            <p style="text-align: right;">Hi - <?= $_SESSION['username']; ?> - <a href='logout.php'>Logout</a></p>
             <div id="user_details"></div>
             <div id="user_modal_details"></div>
         </div>
     </div>
+
+    <div id="group_chat_dialog" title="Group chat window">
+        <div id="group_chat_history">
+        </div>
+
+        <div class="form-group">
+            <textarea name="group_chat_message" id="group_chat_message" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <button type="button" name="send_group_chat" id="send_group_chat" class="btn btn-info">Send</button>
+        </div>
+    </div>
+
     <script type="text/javascript">
         $(document).ready(function() {
 
@@ -45,7 +78,8 @@ if (!isset($_SESSION['user_id'])) {
                 update_last_activity();
                 fetch_user();
                 update_chat_history_data();
-            }, 10000);
+                fetch_group_chat_history();
+            }, 5000);
 
             function fetch_user() {
                 $.ajax({
@@ -111,9 +145,10 @@ if (!isset($_SESSION['user_id'])) {
                     },
                     success: function(data) {
                         // console.log(chat_message);
-                        // $('#chat_message_' + to_user_id).val('');
+                        $('#chat_message_' + to_user_id).val('');
                         let element_chat = $('#chat_message_' + to_user_id).emojioneArea();
                         element_chat[0].emojioneArea.setText('');
+
                         $('#chat_history_' + to_user_id).html(data);
 
                     }
@@ -173,6 +208,57 @@ if (!isset($_SESSION['user_id'])) {
                     }
                 });
             });
+
+            $('#group_chat_dialog').dialog({
+                autoOpen: false,
+                width: 400
+            });
+
+            $('#group_chat').on('click', function(e) {
+                e.preventDefault();
+
+                $('#group_chat_dialog').dialog('open');
+                $('#is_active_group_chat_window').val('yes');
+                fetch_group_chat_history();
+            });
+
+            $('#send_group_chat').click(function() {
+                let chat_message = $('#group_chat_message').val();
+                let action = 'insert_data';
+                if (chat_message != '') {
+                    $.ajax({
+                        url: "group_chat.php",
+                        method: "POST",
+                        data: {
+                            chat_message: chat_message,
+                            action: action
+                        },
+                        success: function(data) {
+                            $('#group_chat_message').val('');
+                            $('#group_chat_history').html(data);
+                        }
+                    });
+                }
+            });
+
+            function fetch_group_chat_history() {
+                let group_chat_dialog_active = $('#is_active_group_chat_window').val();
+                let action = 'fetch_data';
+
+                if (group_chat_dialog_active == 'yes') {
+                    $.ajax({
+                        url: "group_chat.php",
+                        method: "POST",
+                        data: {
+                            action: action
+                        },
+                        success: function(data) {
+                            $('#group_chat_history').html(data);
+                        }
+                    });
+                }
+            }
+
         });
     </script>
 </body>
