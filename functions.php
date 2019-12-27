@@ -111,8 +111,8 @@ function fetch_user_chat_history($from_user_id, $to_user_id, $connect)
 
         $output .= '
             <li style="border-bottom: 1px solid #ccc;">
-                <p>' . $user_name . ' - ' . decrypt($sBox, $row['username_from'], $row['chat_message']) . '
-                    <div align="right">
+                <p>' . $user_name . ' - ' . $row['chat_message'] . //decrypt($sBox, $row['username_from'], $row['chat_message'])  
+                    '<div align="right">
                         - <small><em>' . $row['created_at'] . '</em></small>
                     </div>
                 </p>

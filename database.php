@@ -4,3 +4,6 @@ session_start();
 
 $connect = new PDO("mysql:host=localhost;dbname=latihan_chat;port=3307;charset=utf8mb4", "root", "");
 $connect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+
+
