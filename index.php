@@ -20,6 +20,7 @@ if (!isset($_SESSION['user_id'])) {
     <script src="./vendor/jquery-3.3.1.js" type="text/javascript"></script>
     <script src="./vendor/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
     <script src="./vendor/emojionarea/js/emojionearea.min.js"></script>
+    <script src="./vendor/jquery.form.min.js"></script>
     <style type="text/css">
         #group_chat_history {
             height: 400px;
@@ -27,6 +28,38 @@ if (!isset($_SESSION['user_id'])) {
             overflow-y: scroll;
             margin-bottom: 24px;
             padding: 16px;
+        }
+
+        #group_chat_message {
+            width: 100%;
+            height: auto;
+            min-height: 80px;
+            overflow: auto;
+            padding: 6px 24px 6px 12px;
+        }
+
+        .chat_message_area {
+            position: relative;
+            width: 100%;
+            height: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .image_upload {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+        }
+
+        .image_upload>form>input {
+            display: none;
+        }
+
+        .image_upload label {
+            width: 24px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -62,7 +95,18 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <div class="form-group">
-            <textarea name="group_chat_message" id="group_chat_message" class="form-control"></textarea>
+            <!--<textarea name="group_chat_message" id="group_chat_message" class="form-control"></textarea>-->
+            <div class="chat_message_area">
+                <div id="group_chat_message" class="form-control" contenteditable>
+
+                </div>
+                <div class="image_upload">
+                    <form id="uploadImage" method="POST" action="upload.php">
+                        <label for="uploadFile">IMG</label>
+                        <input type="file" name="uploadFile" id="uploadFile" accept=".jpg, .png, .bmp" />
+                    </form>
+                </div>
+            </div>
         </div>
         <div class="form-group">
             <button type="button" name="send_group_chat" id="send_group_chat" class="btn btn-info">Send</button>
@@ -223,7 +267,7 @@ if (!isset($_SESSION['user_id'])) {
             });
 
             $('#send_group_chat').click(function() {
-                let chat_message = $('#group_chat_message').val();
+                let chat_message = $('#group_chat_message').html();
                 let action = 'insert_data';
                 if (chat_message != '') {
                     $.ajax({
@@ -234,7 +278,7 @@ if (!isset($_SESSION['user_id'])) {
                             action: action
                         },
                         success: function(data) {
-                            $('#group_chat_message').val('');
+                            $('#group_chat_message').html('');
                             $('#group_chat_history').html(data);
                         }
                     });
@@ -258,6 +302,13 @@ if (!isset($_SESSION['user_id'])) {
                     });
                 }
             }
+
+            $('#uploadFile').on('change', function() {
+                $('#uploadImage').ajaxSubmit({
+                    target: '#group_chat_message',
+                    resetForm: true,
+                });
+            });
 
         });
     </script>
