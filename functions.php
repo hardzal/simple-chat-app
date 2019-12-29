@@ -101,17 +101,35 @@ function fetch_user_chat_history($from_user_id, $to_user_id, $connect)
 
     $result = $statement->fetchAll();
     $output = '<ul class="list-unstyled">';
-    $user_name = '';
+
     foreach ($result as $row) {
+        $username = '';
+        $chat_message = '';
+        $dynamic_background = '';
+
         if ($row['from_user_id'] == $from_user_id) {
-            $user_name = '<strong class="text-success">You</strong>';
+            if ($row['status_message'] == '2') {
+                $chat_message = '<em>This message has been removed</em>';
+                $username = '<strong class="text-success">You</strong>';
+            } else {
+                $chat_message = $row['chat_message'];
+                $username = '<button type="button" class="btn btn-danger btn-xs remove_chat" id="' . $row['chat_message_id'] . '">x</button>&nbsp;<strong class="text-success">You</strong>';
+            }
+            $dynamic_background = 'background-color: #ffe6e6';
         } else {
-            $user_name = '<strong class="text-danger">' . get_user_name($row['from_user_id'], $connect) . '</strong>';
+            if ($row['status_message'] == '2') {
+                $chat_message = '<em>This message has been removed</em>';
+            } else {
+                $chat_message = $row['chat_message'];
+            }
+
+            $username = '<strong class="text-danger">' . get_user_name($row['from_user_id'], $connect) . '</strong>';
+            $dynamic_background = 'background-color: #ffffe6';
         }
 
         $output .= '
-            <li style="border-bottom: 1px solid #ccc;">
-                <p>' . $user_name . ' - ' . $row['chat_message'] . //decrypt($sBox, $row['username_from'], $row['chat_message'])  
+            <li style="border-bottom: 1px solid #ccc;padding-left:8px;padding-right:8px;' . $dynamic_background . '">
+                <p>' . $username . ' - ' . $chat_message . //decrypt($sBox, $row['username_from'], $row['chat_message'])  
             '<div align="right">
                         - <small><em>' . $row['created_at'] . '</em></small>
                     </div>
@@ -193,15 +211,33 @@ function fetch_group_chat_history($connect)
 
     foreach ($result as $row) {
         $username = '';
+        $dynamic_background = '';
+        $chat_message = '';
+
         if ($row['from_user_id'] == $_SESSION['user_id']) {
-            $username = '<strong class="text-success">You</strong>';
+            if ($row['status_message'] == '2') {
+                $chat_message = '<em>This message has been removed</em>';
+                $username = '<strong class="text-success">You</strong>';
+            } else {
+                $chat_message = $row['chat_message'];
+                $username = '<button type="button" class="btn btn-danger btn-xs remove_chat" id="' . $row['chat_message_id'] . '">x</button>&nbsp;<strong class="text-success">You</strong>';
+            }
+
+            $dynamic_background = 'background-color: #ffe6e6';
         } else {
+            if ($row['status_message'] == '2') {
+                $chat_message = '<em>This message has been removed</em>';
+            } else {
+                $chat_message = $row['chat_message'];
+            }
             $username  = '<strong class="text-danger">' . get_user_name($row['from_user_id'], $connect) . '</strong>';
+
+            $dynamic_background = 'background-color: #ffffe6';
         }
 
         $output .= '
-            <li style="border-bottom:1px dotted #ccc;">
-                <p>' . $username . ' - ' . $row['chat_message'] . '
+            <li style="border-bottom:1px dotted #ccc;padding-left:8px;padding-right:8px;' . $dynamic_background . '">
+                <p>' . $username . ' - ' . $chat_message . '
                     <div class="text-right">
                         - <small><em>' . $row['created_at'] . '</em></small>
                     </div>

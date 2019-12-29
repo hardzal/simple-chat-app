@@ -310,6 +310,21 @@ if (!isset($_SESSION['user_id'])) {
                 });
             });
 
+            $(document).on('click', '.remove_chat', function() {
+                var chat_message_id = $(this).attr('id');
+                if (confirm("Are you sure want to remove this chat?")) {
+                    $.ajax({
+                        url: "remove_chat.php",
+                        method: "POST",
+                        data: {
+                            chat_message_id: chat_message_id
+                        },
+                        success: function(data) {
+                            update_chat_history_data();
+                        }
+                    })
+                }
+            });
         });
     </script>
 </body>
