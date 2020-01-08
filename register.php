@@ -7,7 +7,7 @@ if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
 }
 
-if (isset($_POST['login'])) {
+if (isset($_POST['register'])) {
     $query = "SELECT * FROM login WHERE username = :username";
 
     $statement = $connect->prepare($query);
@@ -15,26 +15,22 @@ if (isset($_POST['login'])) {
     $statement->execute();
 
     $count = $statement->rowCount();
-    if ($count) {
-        $result = $statement->fetchAll();
-        foreach ($result as $row) :
-            if (password_verify($_POST['password'], $row['password'])) {
-                $_SESSION['user_id'] = $row['user_id'];
-                $_SESSION['username'] = $row['username'];
+    if (!$count) {
+        $username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+        $password = $_POST['password'];
 
-                $sub_query = "INSERT INTO login_details(user_id) VALUES('" . $row['user_id'] . "')";
+        $query = "INSERT INTO login(username, password) VALUES(:username, :password)";
 
-                $statement = $connect->prepare($sub_query);
-                $statement->execute();
+        $statement = $connect->prepare($query);
+        $data = [
+            ":username" => $username,
+            ":password" => password_hash($password, PASSWORD_DEFAULT)
+        ];
+        $statement->execute($data);
 
-                $_SESSION['login_details_id'] = $connect->lastInsertId();
-                header("Location: index.php");
-            } else {
-                $message = "<label>Wrong password</label>";
-            }
-        endforeach;
+        $message = "<label>Successful register!</label>";
     } else {
-        $message = '<label>Wrong username</label>';
+        $message = '<label>Your username has been registered</label>';
     }
 }
 
@@ -46,7 +42,7 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Chat Application with PHP ajax jQuery</title>
+    <title>Chat Application with PHP ajax jQuery | Register</title>
     <link rel="stylesheet" href="./vendor/jquery-ui/jquery-ui.min.css" type="text/css" />
     <link rel="stylesheet" href="./vendor/bootstrap.min.css" />
     <script src="./vendor/bootstrap.min.js" type="text/javascript"></script>
@@ -59,9 +55,9 @@ if (isset($_POST['login'])) {
         <br />
         <h3 style="text-align:center;">Chat Application with PHP ajax jQuery</h3><br />
         <div class="panel panel-default">
-            <div class="panel-heading">Chat Application Login</div>
+            <div class="panel-heading">Chat Application Register</div>
             <div class="panel-body">
-                <p class="text-danger"><?= $message; ?></p>
+                <p class="text-info"><?= $message; ?></p>
                 <form action="" method="post">
                     <div class="form-group">
                         <label for="username">Username</label><input type="text" name="username" class="form-control" id="" required />
@@ -70,8 +66,8 @@ if (isset($_POST['login'])) {
                         <label for="password">Password</label><input type="password" name="password" id="" class="form-control" />
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Login" class="btn btn-primary" name="login">
-                        <a href='register.php' class='btn btn-secondary'>Register</a>
+                        <input type="submit" value="Register" class="btn btn-primary" name="register">
+                        <a href='login.php' class='btn btn-secondary'>Login</a>
                     </div>
                 </form>
             </div>
